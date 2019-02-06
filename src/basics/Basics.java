@@ -43,6 +43,7 @@ public class Basics {
     static String IMAGENTA= "\u001b[1;35m";
     static String ICYAN=    "\u001b[1;36m";
     static String IWHITE=   "\u001b[1;37m";
+    
     /*Paper Colours */
     static String PBLACK=    "\u001b[0;40m";
     static String PGREY=    "\u001b[1;40m";
@@ -55,6 +56,8 @@ public class Basics {
     static String PWHITE=   "\u001b[1;47m";
     /*Reset colours*/
     static String NONE=    "\u001b[7;30;47m";
+    static int PAPER=0;
+    static int INK=7;
     
     public static void print(Object... args){
         String text="";
@@ -124,10 +127,57 @@ public class Basics {
     
     public static void clrscr(){
         printf("%c[2J",0x1b);
+        printf("%c[1;1H",0x1b);
     }
     
     public static void gotoxy(int x,int y){
         printf("%c[%d;%dH",0x1b,y,x);
+    }
+    
+    /**
+     *
+     * @param args
+     */
+    public static void background(Object... args){
+        String tmp;
+        try{
+            if(type(args[0])==type(1))
+            {
+                print("\u001b[0;4",args[0],"m");
+                PAPER=Integer.parseInt(args[0].toString());
+            }
+            else{
+                print(args[0]);
+                tmp=args[0].toString().substring(args[0].toString().length()-2, 1);
+                PAPER=Integer.parseInt(tmp);
+            }
+        } catch (Exception e){
+                print(NONE);
+            }
+        
+    }
+    public static void foreground(Object... args){
+        String tmp;
+        try{
+            if(type(args[0])==type(1))
+            {
+                print("\u001b[1;3",args[0],"m");
+                INK=Integer.parseInt(args[0].toString());
+            }
+            else{
+                print(args[0]);
+                tmp=args[0].toString().substring(args[0].toString().length()-2, 1);
+                INK=Integer.parseInt(tmp);
+            }
+        } catch (Exception e){
+                print(NONE);
+            }
+        
+    }
+    public static void printc(Object... args){
+        foreground(INK);
+        background(PAPER);
+        print(args);
     }
     
     /**
@@ -226,6 +276,23 @@ public class Basics {
         chainVal = String.format(Locale.US,"%d",Math.round(value));
         return(Integer.parseInt(chainVal));
     }
+    
+    /**
+     *
+     * @param args
+     * @return
+     */
+    public static String input(String... args){
+        Scanner sca = new Scanner(System.in);
+        
+        if(args.length==0)
+            print("?");
+        else
+            for (int f=0;f<args.length;f++)
+                print(args[f]);
+        return(sca.nextLine());
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -252,6 +319,10 @@ public class Basics {
         print(rndInt(50));
         gotoxy(1,21);
         print(NONE);
+        background(1);foreground(6);
+        print("BYE","\n\n");
+        input("Press ENTER to finish!");
+        clrscr();
     }
     
 }
