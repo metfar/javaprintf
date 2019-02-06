@@ -1,5 +1,5 @@
 # javaprintf
-Just another implementation of printf (c/php-like) and print (Python-like) <and some more functions/> in java, by William Martinez Bas
+Just another implementation of printf (c/php-like) and print (Python-like) (and some more functions) in java, by William Martinez Bas
  
 # History
 
