@@ -1,9 +1,7 @@
 # javaprintf
-Just another implementation of printf (c/php-like) and print (Python-like) in java
-
-# Welcome to the JavaPrintf wiki!
-
-*                                         William Martinez Bas <metfar@gmail.com>
+Just another implementation of printf (c/php-like) and print (Python-like) <and some more functions/> in java
+                                                   
+                                                   <metfar@gmail.com>
 
  
 # History
