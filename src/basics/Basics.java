@@ -129,7 +129,14 @@ public class Basics {
         printf("%c[2J",0x1b);
         printf("%c[1;1H",0x1b);
     }
-    
+    public static void delay(long lapse) {
+        long start = System.currentTimeMillis();
+        while(true)
+            if(start+lapse*100<System.currentTimeMillis())
+                break;
+        
+    }
+
     public static void gotoxy(int x,int y){
         printf("%c[%d;%dH",0x1b,y,x);
     }
