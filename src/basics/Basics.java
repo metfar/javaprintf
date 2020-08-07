@@ -1,7 +1,18 @@
 /*
  * Basics.java
  * 
- * Copyright 2019 William Martinez Bas <metfar@gmail.com>
+ * Primary version of https://github.com/metfar/cForPy for Java, and 
+ * https://github.com/metfar/javaprintf ,
+ * Just a compilation of functions (remainings of BASIC/C/CPP/PHP).
+ *
+ * This library is a combination of a lot of previous jobs.  I started 
+ * it when I began to study C language, with  a  QBasic  baggage.  So,
+_* this  is  based  on  my  BASIC.h(1988), bib.h(1989), bibc.py (c/cpp
+ * compat), func.py (basic functions), php.py (php compat).
+ * 
+ * This has no warranties.
+ * 
+ * Copyright 1988*- William Martinez Bas <metfar@gmail.com>
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +32,23 @@
  * 
  */
 
-package basics;
+package checkctm;
 
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
 
 
 /**
@@ -43,7 +68,6 @@ public class Basics {
     static String IMAGENTA= "\u001b[1;35m";
     static String ICYAN=    "\u001b[1;36m";
     static String IWHITE=   "\u001b[1;37m";
-    
     /*Paper Colours */
     static String PBLACK=    "\u001b[0;40m";
     static String PGREY=    "\u001b[1;40m";
@@ -56,8 +80,6 @@ public class Basics {
     static String PWHITE=   "\u001b[1;47m";
     /*Reset colours*/
     static String NONE=    "\u001b[7;30;47m";
-    static int PAPER=0;
-    static int INK=7;
     
     public static void print(Object... args){
         String text="";
@@ -67,8 +89,117 @@ public class Basics {
         System.out.print(text);
         
     }
+     public static boolean exists(String argum) {
+            boolean out;
+            File tmpDir = new File(argum);
+            out= tmpDir.exists();
+            return(out);
+     }
+     public static String readParaFile(String argum) throws IOException{
+        String out="";
+        Scanner in;
+        StringBuilder sb;
+        if (!exists(argum))
+            return(out);
+        in = new Scanner(new FileReader(argum));
+        sb = new StringBuilder();
+        while(in.hasNext()) {
+            sb.append(in.next()).append(" ");
+        }
+        in.close();
+        out=sb.toString();
+        return(out);
+    }
+     private static String readLineByLine(String filePath) 
+    {
+        StringBuilder contentBuilder = new StringBuilder();
+ 
+        try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8)) 
+        {
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+        }
+        catch (IOException e) 
+        {
+        }
+ 
+        return (contentBuilder.toString());
+    }
+    public static String read_file(String fileName){
+        String out = "";
+        if(exists(fileName))
+            out=readLineByLine(fileName);
+        return(out);
+    }
+    public static boolean put_file(String filename,String[] content){
+        File fout = new File(filename);
+        boolean ok=true;
+        try{
+            FileOutputStream fos = new FileOutputStream(fout);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+            for (String content1 : content) {
+                bw.write(content1);
+                bw.newLine();
+            }
+            bw.close(); 
+            
+        } catch(IOException e){
+            ok=false;
+        }
+        return(ok);
+    }
+    public static boolean put_file(String filename,String content){
+        File fout = new File(filename);
+        boolean ok=true;
+        try{
+            FileOutputStream fos = new FileOutputStream(fout);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+            bw.write(content);
+            bw.close(); 
+            
+        } catch(IOException e){
+            ok=false;
+        }
+        return(ok);
+    }
     
-
+    public static String[][] read_csv(String fileName,String Sep){
+        String[][] out=new String[0][];
+        List<String[]> rowList = new ArrayList<String[]>();
+        if (!exists(fileName))
+            return(out);
+        if(Sep==null)   Sep=",";
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] lineItems = line.split(Sep);
+                rowList.add(lineItems);
+            }
+            br.close();
+        }
+        catch(Exception e){
+        }
+        out = new String[rowList.size()][];
+        for (int i = 0; i < rowList.size(); i++) {
+            String[] row = rowList.get(i);
+            out[i] = row;
+        }
+        return(out);
+    }
+    public static String rot13(String argum){
+        String out=""; 
+        for (int f = 0; f < argum.length(); f++) {
+            char c = argum.charAt(f);
+            if       (c >= 'a' && c <= 'm') c += 13;
+            else if  (c >= 'A' && c <= 'M') c += 13;
+            else if  (c >= 'n' && c <= 'z') c -= 13;
+            else if  (c >= 'N' && c <= 'Z') c -= 13;
+            out+=c;
+        }
+        return(out);
+    }
+    public static String[][] read_csv(String fileName){
+        return(read_csv(fileName,","));
+    }
     public static void printf(String argum,Object... args){
         String delim="%",arg=argum;
         int min,num,z=0,n,f;
@@ -127,64 +258,10 @@ public class Basics {
     
     public static void clrscr(){
         printf("%c[2J",0x1b);
-        printf("%c[1;1H",0x1b);
-    }
-    public static void delay(long lapse) {
-        long start = System.currentTimeMillis();
-        while(true)
-            if(start+lapse*100<System.currentTimeMillis())
-                break;
-        
-    }
-
-    public static void gotoxy(int x,int y){
-        printf("%c[%d;%dH",0x1b,y,x);
     }
     
-    /**
-     *
-     * @param args
-     */
-    public static void background(Object... args){
-        String tmp;
-        try{
-            if(type(args[0])==type(1))
-            {
-                print("\u001b[0;4",args[0],"m");
-                PAPER=Integer.parseInt(args[0].toString());
-            }
-            else{
-                print(args[0]);
-                tmp=args[0].toString().substring(args[0].toString().length()-2, 1);
-                PAPER=Integer.parseInt(tmp);
-            }
-        } catch (Exception e){
-                print(NONE);
-            }
-        
-    }
-    public static void foreground(Object... args){
-        String tmp;
-        try{
-            if(type(args[0])==type(1))
-            {
-                print("\u001b[1;3",args[0],"m");
-                INK=Integer.parseInt(args[0].toString());
-            }
-            else{
-                print(args[0]);
-                tmp=args[0].toString().substring(args[0].toString().length()-2, 1);
-                INK=Integer.parseInt(tmp);
-            }
-        } catch (Exception e){
-                print(NONE);
-            }
-        
-    }
-    public static void printc(Object... args){
-        foreground(INK);
-        background(PAPER);
-        print(args);
+    public static void gotoxy(int x,int y){
+        printf("%c[%d;%dH",0x1b,y,x);
     }
     
     /**
@@ -252,7 +329,7 @@ public class Basics {
     }
     public static int len(Object... args){
          int length=0;String a=args[0].toString();        
-         print("c:",type(args),"\n");
+         //print("c:",type(args),"\n");
          if(isstring(args))
              length=a.length();
          if(isarray(args))
@@ -284,27 +361,28 @@ public class Basics {
         return(Integer.parseInt(chainVal));
     }
     
-    /**
-     *
-     * @param args
-     * @return
-     */
-    public static String input(String... args){
-        Scanner sca = new Scanner(System.in);
-        
-        if(args.length==0)
-            print("?");
-        else
-            for (int f=0;f<args.length;f++)
-                print(args[f]);
-        return(sca.nextLine());
-    }
     
+    public static String filter(Object argum){
+        String out="";
+        String eliminate="()[]{} ";
+        String wtreplace=",;";
+        String wbreplace="|||";
+        try{ 
+            out+=argum.toString();
+            for(int f=0; f<eliminate.length();f++)
+                out=out.replace(eliminate.substring(f,f+1),"");
+            
+            for(int f=0; f<wtreplace.length();f++)
+                out=out.replace(wtreplace.substring(f,f+1),wbreplace.substring(f,f+1));
+            
+        } catch(Exception e){}
+        return(out);
+    }
     /**
      * @param args the command line arguments
      */
     @SuppressWarnings("empty-statement")
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String[] a={"la","casa","roja"};
         String b="La casa roja";
         Double[] c={1.0,2.0,3.0};
@@ -323,13 +401,33 @@ public class Basics {
         print(rnd(50),"\n");
         print(PBLACK,IGREEN);
         gotoxy(50,10);
-        print(rndInt(50));
+        printf("%d\n",rndInt(50));
+        if(args.length>0)
+        {
+            String fa=args[0];
+            String out="";
+            if(exists(fa)){
+                printf("\n");
+                String[][] fe=read_csv(fa,"\n");
+                for (int f=0;f<fe.length;f++)
+                {for (int n=0;n<fe[f].length;n++)
+                    if(fe[f][n].length()>0)
+                    {
+                        print(""+rot13(fe[f][n])+"\n" );
+                        out+=""+rot13(fe[f][n])+"\n";
+                    }
+                }
+                put_file("outlog.txt",out);
+            } else {
+               print(PYELLOW,IRED);
+               print("--------\n");
+               for (int f=0;f<args.length;f++)
+                   printf("%s ",rot13(args[f]));
+               print("\n--------\n");
+            }
+        }
         gotoxy(1,21);
         print(NONE);
-        background(1);foreground(6);
-        print("BYE","\n\n");
-        input("Press ENTER to finish!");
-        clrscr();
     }
     
 }
